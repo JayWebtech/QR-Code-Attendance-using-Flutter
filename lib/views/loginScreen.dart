@@ -1,9 +1,9 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
-
+import '../controllers/login_controller.dart';
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key);
-
+  LoginScreen({Key? key}) : super(key: key);
+  final LoginController _controller = LoginController();
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -39,6 +39,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 40),
                 TextFormField(
+                  controller:  _controller.regNumberController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius:
@@ -53,11 +54,12 @@ class LoginScreen extends StatelessWidget {
                           color: Color(
                               0xFF115E38)), // Set the focused border color
                     ),
-                    hintText: 'Enter a your email',
+                    hintText: 'Enter a your reg number',
                   ),
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
+                  controller: _controller.passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
@@ -80,7 +82,7 @@ class LoginScreen extends StatelessWidget {
                 SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () { _controller.submitForm(context); },
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
                             const Color(0xFF115E38), // Set the button color
@@ -92,7 +94,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
                       child: const Text(
-                        'Get Started',
+                        'Login',
                         style: TextStyle(
                           fontFamily: 'InfantRegular',
                           fontSize: 16,

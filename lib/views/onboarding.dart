@@ -1,5 +1,6 @@
 import 'package:attendance/views/getStarted.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Onboarding extends StatelessWidget {
   const Onboarding({Key? key}) : super(key: key);
@@ -70,9 +71,16 @@ class Onboarding extends StatelessWidget {
                   SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(context,MaterialPageRoute(builder: (context) => 
-                          TabsScreen()));
+                        onPressed: () async {
+                          int isViewed = 0;
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          await prefs.setInt('onBoard', isViewed);
+                          // ignore: use_build_context_synchronously
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const TabsScreen()));
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor:

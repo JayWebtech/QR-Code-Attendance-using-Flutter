@@ -1,15 +1,21 @@
+// ignore: file_names
 import 'package:flutter/material.dart';
+import '../controllers/signup_controller.dart';
 
 class SignupScreen extends StatelessWidget {
-const SignupScreen({ Key? key }) : super(key: key);
+SignupScreen({ Key? key }) : super(key: key);
+
+  final SignupController _controller = SignupController();
+
+ 
 
   @override
   Widget build(BuildContext context){
-    return SingleChildScrollView(
+   return SingleChildScrollView(
       child: Align(
         alignment: Alignment.topCenter,
         child: Container(
-          margin: const EdgeInsets.only(top: 50, left: 20, right: 20),
+          margin: const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
           padding: const EdgeInsets.all(25),
           decoration: const BoxDecoration(
             color: Colors.white,
@@ -21,8 +27,8 @@ const SignupScreen({ Key? key }) : super(key: key);
               children: [
                 Image.asset(
                   "assets/img/login.png",
-                  width: 200,
-                  height: 200,
+                  width: 150,
+                  height: 150,
                 ),
                 const SizedBox(height: 10),
                 const Text(
@@ -38,6 +44,7 @@ const SignupScreen({ Key? key }) : super(key: key);
                 ),
                 const SizedBox(height: 40),
                 TextFormField(
+                  controller: _controller.nameController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius:
@@ -57,6 +64,9 @@ const SignupScreen({ Key? key }) : super(key: key);
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
+                  controller: _controller.pinController,
+                  keyboardType: TextInputType.number,
+                  maxLength: 4,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius:
@@ -76,6 +86,7 @@ const SignupScreen({ Key? key }) : super(key: key);
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
+                  controller: _controller.regNumberController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius:
@@ -90,11 +101,12 @@ const SignupScreen({ Key? key }) : super(key: key);
                           color: Color(
                               0xFF115E38)), // Set the focused border color
                     ),
-                    hintText: 'Enter a your email',
+                    hintText: 'Enter a your registration number',
                   ),
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
+                  controller: _controller.passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
@@ -117,7 +129,7 @@ const SignupScreen({ Key? key }) : super(key: key);
                 SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () { _controller.submitForm(context); },
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
                             const Color(0xFF115E38), // Set the button color
@@ -129,7 +141,7 @@ const SignupScreen({ Key? key }) : super(key: key);
                         ),
                       ),
                       child: const Text(
-                        'Get Started',
+                        'Sign up',
                         style: TextStyle(
                           fontFamily: 'InfantRegular',
                           fontSize: 16,
@@ -142,6 +154,5 @@ const SignupScreen({ Key? key }) : super(key: key);
         ),
       ),
     );
-
   }
 }

@@ -1,7 +1,19 @@
+import 'package:attendance/views/getStarted.dart';
 import 'package:attendance/views/onboarding.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'firebase_options.dart';
 
-void main() {
+int ? isviewed;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  isviewed = prefs.getInt('onBoard');
+  await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+);
   runApp(const MyApp());
 }
 
@@ -11,10 +23,10 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-   return const MaterialApp(
+   return MaterialApp(
       title: 'QR Code Attendance',
       debugShowCheckedModeBanner: false,
-      home: Onboarding(),
+      home: isviewed != 0 ? const Onboarding() : const TabsScreen(),
     );
   }
 }
