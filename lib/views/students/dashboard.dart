@@ -27,7 +27,7 @@ class _DashboardState extends State<Dashboard> {
             BottomBarItem(
               bottomItemSelectedColor:  const Color(0xFF115E38),
               label: 'Student',
-              screen: const Student(),
+              screen: Student(),
               selectedIcon: FeatherIcons.user,
             ),
             BottomBarItem(
