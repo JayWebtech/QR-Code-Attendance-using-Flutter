@@ -1,6 +1,7 @@
 import 'package:attendance/views/students/attendance.dart';
 import 'package:attendance/views/students/courses.dart';
 import 'package:attendance/views/students/logout.dart';
+import 'package:attendance/views/students/scan.dart';
 import 'package:attendance/views/students/student.dart';
 import 'package:flutter/material.dart';
 import 'package:botton_nav_bar/botton_nav_bar.dart';
@@ -19,6 +20,12 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
       
       body: BottomNavBar(
+        onPressFAB: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const Scan()),
+          );
+        },
         fabBackGroundColor:  const Color(0xFF115E38),
           notchedRadius: 30,
           centerNotched: true,
