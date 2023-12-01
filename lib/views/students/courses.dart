@@ -67,32 +67,32 @@ class _CoursesState extends State<Courses> {
                       padding: const EdgeInsets.only(
                           top: 100, left: 15, right: 15, bottom: 15),
                       width: MediaQuery.of(context).size.width,
-                      child: Column(
+                      child: const Column(
                         children: [
                           Align(
                             alignment: Alignment.topLeft,
                             child: Text(
                               "Offered Courses",
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontFamily: 'Millik',
                                   fontSize: 30,
                                   color: Colors.white),
                             ),
                           ),
-                          const SizedBox(
+                          SizedBox(
                             height: 10,
                           ),
                           Align(
                             alignment: Alignment.topLeft,
                             child: Text(
                               "Courses are automatically fetched from your courses database",
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontFamily: 'InfantBold',
                                   fontSize: 25,
                                   color: Colors.white),
                             ),
                           ),
-                          const SizedBox(
+                          SizedBox(
                             height: 25,
                           ),
                         ],

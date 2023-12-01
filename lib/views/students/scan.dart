@@ -1,9 +1,16 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:attendance/views/students/dashboard.dart';
+import 'package:attendance/views/students/student.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:flutter_progress_hud/flutter_progress_hud.dart';
+import 'package:m_toast/m_toast.dart';
+import '../../controllers/user_data.dart';
 
 void main() => runApp(const MaterialApp(home: Scan()));
 
@@ -12,7 +19,7 @@ class Scan extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: QRViewExample());
+    return const Scaffold(body: QRViewExample());
   }
 }
 
@@ -24,9 +31,13 @@ class QRViewExample extends StatefulWidget {
 }
 
 class _QRViewExampleState extends State<QRViewExample> {
+  ShowMToast toast = ShowMToast();
   Barcode? result;
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  UserDataController userDataController = UserDataController();
+  bool shouldRebuildQrView = false;
+  bool isProcessingAttendance = false;
 
   // In order to get hot reload to work we need to pause the camera if the platform
   // is android, or resume the camera if the platform is iOS.
@@ -56,8 +67,7 @@ class _QRViewExampleState extends State<QRViewExample> {
                     height: 12,
                   ),
                   if (result != null)
-                    Text(
-                        'Barcode Type: ${describeEnum(result!.format)}   Data: ${result!.code}')
+                    Text('Barcode Type: ${describeEnum(result!.format)}')
                   else
                     const Text(
                       'Scan the QR Code on the screen',
@@ -80,14 +90,17 @@ class _QRViewExampleState extends State<QRViewExample> {
                                   10), // Set the button padding
                             ),
                             onPressed: () async {
-                              await controller?.toggleFlash();
-                              setState(() {});
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const Dashboard()),
+                              );
                             },
                             child: FutureBuilder(
                               future: controller?.getFlashStatus(),
                               builder: (context, snapshot) {
                                 return Text(
-                                  'Flash: ${snapshot.data}',
+                                  'Go Back',
                                   style: const TextStyle(
                                     fontFamily: 'InfantRegular',
                                     fontSize: 16,
@@ -138,39 +151,103 @@ class _QRViewExampleState extends State<QRViewExample> {
   }
 
   Widget _buildQrView(BuildContext context) {
-    // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
-    var scanArea = (MediaQuery.of(context).size.width < 400 ||
-            MediaQuery.of(context).size.height < 400)
-        ? 150.0
-        : 300.0;
-    // To ensure the Scanner view is properly sizes after rotation
-    // we need to listen for Flutter SizeChanged notification and update controller
-    return QRView(
-      key: qrKey,
-      onQRViewCreated: _onQRViewCreated,
-      overlay: QrScannerOverlayShape(
-          borderColor: Colors.red,
-          borderRadius: 10,
-          borderLength: 30,
-          borderWidth: 10,
-          cutOutSize: scanArea),
-      onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
-    );
+    // Check the shouldRebuildQrView flag and rebuild the widget if needed
+    if (shouldRebuildQrView) {
+      var scanArea = (MediaQuery.of(context).size.width < 400 ||
+              MediaQuery.of(context).size.height < 400)
+          ? 350.0
+          : 300.0;
+      // To ensure the Scanner view is properly sized after rotation
+      // we need to listen for Flutter SizeChanged notification and update controller
+      return QRView(
+        key: qrKey,
+        onQRViewCreated: _onQRViewCreated,
+        overlay: QrScannerOverlayShape(
+            borderColor: Colors.red,
+            borderRadius: 10,
+            borderLength: 30,
+            borderWidth: 10,
+            cutOutSize: scanArea),
+        onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
+      );
+    } else {
+      var scanArea = (MediaQuery.of(context).size.width < 400 ||
+              MediaQuery.of(context).size.height < 400)
+          ? 350.0
+          : 300.0;
+      // To ensure the Scanner view is properly sized after rotation
+      // we need to listen for Flutter SizeChanged notification and update controller
+      return QRView(
+        key: qrKey,
+        onQRViewCreated: _onQRViewCreated,
+        overlay: QrScannerOverlayShape(
+            borderColor: Colors.red,
+            borderRadius: 10,
+            borderLength: 30,
+            borderWidth: 10,
+            cutOutSize: scanArea),
+        onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
+      );
+    }
   }
 
   void _onQRViewCreated(QRViewController controller) {
     setState(() {
       this.controller = controller;
     });
-    controller.scannedDataStream.listen((scanData) {
-      setState(() {
-        result = scanData;
-      });
+    controller.resumeCamera();
+    controller.scannedDataStream.listen((scanData) async {
+      if (!isProcessingAttendance) {
+        isProcessingAttendance = true;
+        setState(() {
+          result = scanData;
+        });
+        final String attendanceResult =
+            await userDataController.processAttendance(result?.code);
+        if (attendanceResult == "valid") {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Success'),
+                content: Text('Attendance taken successfully'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => Dashboard()),
+                      );
+                    },
+                    child: Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        } else {
+          toast.errorToast(
+            context,
+            message: attendanceResult,
+            alignment: Alignment.topCenter,
+          );
+          await Future.delayed(const Duration(seconds: 2));
+          setState(() {
+            shouldRebuildQrView = true;
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Scan()),
+            );
+          });
+        }
+      }
     });
+    this.controller!.pauseCamera();
+    this.controller!.resumeCamera();
   }
 
   void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
-    log('${DateTime.now().toIso8601String()}_onPermissionSet $p');
+    //log('${DateTime.now().toIso8601String()}_onPermissionSet $p');
     if (!p) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No Permission Granted')),
