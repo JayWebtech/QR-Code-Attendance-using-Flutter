@@ -12,7 +12,8 @@ class Attendance extends StatefulWidget {
 class _AttendanceState extends State<Attendance> {
   UserDataController userDataController = UserDataController();
   Map<String, dynamic>? userData;
-
+  List<Map<String, dynamic>> attendanceData = [];
+  String? regno;
   @override
   void initState() {
     super.initState();
@@ -26,7 +27,20 @@ class _AttendanceState extends State<Attendance> {
 
   void fetchUserData() async {
     userData = await userDataController.fetchUserData();
+    setState(() {
+      regno = userData!['regno'];
+    });
+    fetchStudentAttendanceData(regno);
     setState(() {});
+  }
+
+  void fetchStudentAttendanceData(regnumber) async {
+    print(regnumber);
+    List<Map<String, dynamic>> fetchedData =
+        await userDataController.fetchStudentAttendance(regnumber!);
+    setState(() {
+      attendanceData = fetchedData;
+    });
   }
 
   @override
@@ -102,92 +116,86 @@ class _AttendanceState extends State<Attendance> {
                     Expanded(
                       child: SingleChildScrollView(
                         child: Container(
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFFCFCFC),
-                            ),
-                            height: MediaQuery.of(context).size.height,
-                            padding: const EdgeInsets.only(
-                                top: 0, left: 15, right: 15, bottom: 100),
-                            margin: const EdgeInsets.only(bottom: 10),
-                            width: MediaQuery.of(context).size.width,
-                            child: ListView.builder(
-                              itemCount: 16,
-                              itemBuilder: (context, index) {
-                                return Column(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors
-                                            .white, // Set the background color of the container
-                                        borderRadius: BorderRadius.circular(
-                                            10), // Set the border radius
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withOpacity(
-                                                0.2), // Adjust the opacity for subtlety
-                                            spreadRadius:
-                                                1, // Smaller spread radius
-                                            blurRadius:
-                                                2, // Smaller blur radius
-                                            offset: const Offset(
-                                                0, 1), // Adjust the offset
-                                          ),
-                                        ],
-                                      ),
-                                      padding: const EdgeInsets.all(15),
-                                      margin: const EdgeInsets.only(
-                                          bottom: 15, left: 5, right: 5),
-                                      child: Column(
-                                        children: [
-                                          Row(
-                                             mainAxisAlignment: MainAxisAlignment.spaceBetween, 
-                                            children: [
-                                              Column(
-                                                children: [
-                                                  Align(
-                                                    alignment:
-                                                        Alignment.topLeft,
-                                                    child: Text(
-                                                      "MTH 202 ${index}",
-                                                      style: const TextStyle(
-                                                          fontFamily:
-                                                              'InfantBold',
-                                                          fontSize: 25,
-                                                          color: Colors.black),
-                                                    ),
-                                                  ),
-                                                  const Align(
-                                                    alignment:
-                                                        Alignment.topLeft,
-                                                    child: Text(
-                                                      "22/11/2023 - 8:30pm",
-                                                      style: TextStyle(
-                                                          fontFamily:
-                                                              'InfantRegular',
-                                                          fontSize: 15,
-                                                          color: Colors.black),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-
-                                              const Icon(
-                                                Icons
-                                                    .check_circle, // Replace with the desired icon
-                                                color: Colors
-                                                    .green, // Optionally, set the icon color
-                                                size:
-                                                    48.0, // Optionally, set the icon size
-                                              )
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                );
-                              },
-                            )),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFFCFCFC),
+                          ),
+                          height: MediaQuery.of(context).size.height,
+                          padding: const EdgeInsets.only(
+                              top: 0, left: 15, right: 15, bottom: 100),
+                          margin: const EdgeInsets.only(bottom: 10),
+                          width: MediaQuery.of(context).size.width,
+                          child: ListView.builder(
+                            itemCount: attendanceData.length,
+                            itemBuilder: (context, index) {
+                              Map<String, dynamic> attendance =
+                                  attendanceData[index];
+                              return Column(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors
+                                          .white, // Set the background color of the container
+                                      borderRadius: BorderRadius.circular(
+                                          10), // Set the border radius
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(
+                                              0.2), // Adjust the opacity for subtlety
+                                          spreadRadius:
+                                              1, // Smaller spread radius
+                                          blurRadius: 2, // Smaller blur radius
+                                          offset: const Offset(
+                                              0, 1), // Adjust the offset
+                                        ),
+                                      ],
+                                    ),
+                                    padding: const EdgeInsets.all(15),
+                                    margin: const EdgeInsets.only(
+                                        bottom: 15, left: 5, right: 5),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  attendance['course'] ??
+                                                      '', // Update key as per your data structure
+                                                  style: const TextStyle(
+                                                      fontFamily: 'InfantBold',
+                                                      fontSize: 25,
+                                                      color: Colors.black),
+                                                ),
+                                                Text(
+                                                  attendance['date'] ??
+                                                      '', // Update key as per your data structure
+                                                  style: const TextStyle(
+                                                      fontFamily:
+                                                          'InfantRegular',
+                                                      fontSize: 15,
+                                                      color: Colors.black),
+                                                ),
+                                              ],
+                                            ),
+                                            const Icon(
+                                              Icons.check_circle,
+                                              color: Colors.green,
+                                              size: 48.0,
+                                            )
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              );
+                            },
+                          ),
+                        ),
                       ),
                     )
                   ],

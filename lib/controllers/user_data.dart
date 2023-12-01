@@ -160,4 +160,31 @@ class UserDataController {
     }
     return "Error $qrCodeResult";
   }
+
+  Future<List<Map<String, dynamic>>> fetchStudentAttendance(String regNo) async {
+    List<Map<String, dynamic>> studentAttendanceList = [];
+
+    try {
+      QuerySnapshot attendanceSnapshot = await FirebaseFirestore.instance
+          .collection('student_attendance')
+          .where('regno', isEqualTo: regNo)
+          .get();
+
+      if (attendanceSnapshot.docs.isNotEmpty) {
+        for (var attendanceDoc in attendanceSnapshot.docs) {
+          Map<String, dynamic>? attendanceData =
+              attendanceDoc.data() as Map<String, dynamic>?;
+
+          if (attendanceData != null) {
+            // Add attendance data to the list
+            studentAttendanceList.add(attendanceData);
+          }
+        }
+      }
+    } catch (e) {
+      print('Error fetching student attendance: $e');
+    }
+    return studentAttendanceList;
+  }
+
 }
